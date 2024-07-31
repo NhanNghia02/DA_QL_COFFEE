@@ -1,0 +1,36 @@
+.sidebar {
+  height: 100vh;
+  width: 250px;
+  position: fixed; /* Cố định bên trái */
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  background-color: #343a40;
+  color: #fff;
+}
+.sidebar .nav-link {
+  color: #fff;
+  padding: 20px 15px;
+}
+.sidebar .nav-link:hover {
+  background-color: #495057;
+  border-radius: 0.25rem;
+}
+.sidebar .sidebar-brand-icon {
+  font-size: 2rem;
+}
+.sidebar .sidebar-brand-text {
+  font-size: 1.25rem;
+}
+.sidebar-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0;
+}
+.sidebar .nav-item.active .nav-link {
+  background-color: #007bff;
+  color: #fff;
+}
+.sidebar .nav-item .nav-link i {
+  margin-right: 10px;
+}
+  
