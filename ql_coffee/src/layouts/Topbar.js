@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './Topbar.css';
+import './css/Topbar.css';
 
 const Topbar = () => {
     const [showNotifications, setShowNotifications] = useState(false);
@@ -12,7 +12,7 @@ const Topbar = () => {
     return (
         <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
             <ul className="navbar-nav ml-auto">
-                <li className="nav-item dropdown no-arrow mx-1">
+                <li className="nav-item dropdown no-arrow mx-3">
                     <a className="nav-link dropdown-toggle" href="#!" id="notificationsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onClick={() => setShowNotifications(!showNotifications)}>
                         <i className="fas fa-bell fa-fw"></i>
                         <span className="badge badge-danger badge-counter">3+</span>
