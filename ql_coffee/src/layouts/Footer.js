@@ -5,7 +5,7 @@ const Footer = () => {
     <footer class="sticky-footer bg-white">
       <div class="container my-auto">
         <div class="copyright text-center my-auto">
-          <span>COFFEE 18 &copy; Coffee Sạch Cho Thực Khách Ngon Miệng</span>
+          <span>COFFEE 18 &copy; Coffee Sạch Cho Thực Khách Dùng Ngon Miệng</span>
         </div>
       </div>
     </footer>

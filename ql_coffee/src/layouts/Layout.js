@@ -3,7 +3,7 @@ import Footer from './Footer';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
-import './Layout.css';
+import './css/Layout.css';
 
 const Layout = ({ children }) => {
   return (
