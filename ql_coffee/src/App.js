@@ -18,6 +18,7 @@ function App() {
         <Layout>
           <main>
             <Routes>
+              <Route path="/" element={<HomeComponent />} />
               <Route path="/admin" element={<HomeComponent />} />
               <Route path="/admin/table" element={<TableComponent />} />
               <Route path="/admin/customers" element={<CustomerComponent />} />
