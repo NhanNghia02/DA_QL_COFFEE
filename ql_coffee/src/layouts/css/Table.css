@@ -1,0 +1,21 @@
+.floor-plan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px; 
+  justify-content: flex-start;
+}
+.table {
+  border: 2px solid #ddd; 
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: #f8f9fa; 
+  width: 250px;
+}
+.table-number {
+  font-size: 1.2rem;
+  font-weight: bold; 
+}
+.btn-warning, .btn-danger {
+  margin-top: 0;
+}

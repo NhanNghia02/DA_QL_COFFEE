@@ -1,0 +1,9 @@
+a {
+    text-decoration: none;
+    font-size: 15px;
+    color: rgb(34, 34, 34);
+}
+a:hover {
+    text-decoration: none;
+    color: rgb(121, 121, 121);
+}
