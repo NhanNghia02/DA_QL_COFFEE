@@ -1,21 +1,47 @@
-.floor-plan {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px; 
-  justify-content: flex-start;
+/* Table.css */
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
 }
-.table {
-  border: 2px solid #ddd; 
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-  background-color: #f8f9fa; 
-  width: 250px;
+
+.card-title {
+  font-size: 1.5rem;
 }
-.table-number {
+
+.card-text {
+  color: #888;
   font-size: 1.2rem;
-  font-weight: bold; 
 }
-.btn-warning, .btn-danger {
-  margin-top: 0;
+
+.list-group-item {
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.img-thumbnail {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.input-group-append {
+  margin-left: 10px;
+}
+
+.btn-primary {
+  border-radius: 0;
+}
+
+.btn-success {
+  border-radius: 0;
+}
+
+.btn-warning {
+  border-radius: 0;
+}
+
+.btn-danger {
+  border-radius: 0;
 }

@@ -3,14 +3,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function CustomerComponent() {
     const [customers, setCustomers] = useState([
-        { id: 1, name: "John Doe", image: "https://via.placeholder.com/50" },
-        { id: 2, name: "Jane Smith", image: "https://via.placeholder.com/50" },
-        { id: 3, name: "Alice Johnson", image: "https://via.placeholder.com/50" },
+        { id: 1, name: "Xuân Giang", image: "https://via.placeholder.com/50", type: "Regular" },
+        { id: 2, name: "Nhân Nghĩa", image: "https://via.placeholder.com/50", type: "Regular" },
+        { id: 3, name: "Việt Hùng", image: "https://via.placeholder.com/50", type: "VIP" },
+        { id: 4, name: "Đan Huy", image: "https://via.placeholder.com/50", type: "Loyal" },
     ]);
 
     const [editCustomer, setEditCustomer] = useState(null);
     const [newName, setNewName] = useState("");
     const [newImage, setNewImage] = useState("");
+    const [newType, setNewType] = useState("Regular");
     const [errors, setErrors] = useState({ name: "", image: "" });
 
     const handleDelete = (id) => {
@@ -21,6 +23,7 @@ function CustomerComponent() {
         setEditCustomer(customer);
         setNewName(customer.name);
         setNewImage(customer.image);
+        setNewType(customer.type);
     };
 
     const validateForm = () => {
@@ -45,11 +48,14 @@ function CustomerComponent() {
         if (!validateForm()) return;
 
         setCustomers(customers.map(customer =>
-            customer.id === editCustomer.id ? { ...customer, name: newName, image: newImage } : customer
+            customer.id === editCustomer.id
+                ? { ...customer, name: newName, image: newImage, type: newType }
+                : customer
         ));
         setEditCustomer(null);
         setNewName("");
         setNewImage("");
+        setNewType("Regular");
         setErrors({ name: "", image: "" });
     };
 
@@ -59,11 +65,13 @@ function CustomerComponent() {
         const newCustomer = {
             id: customers.length + 1,
             name: newName,
-            image: newImage || "https://via.placeholder.com/50" // Use placeholder if no image provided
+            image: newImage || "https://via.placeholder.com/50", // Use placeholder if no image provided
+            type: newType
         };
         setCustomers([...customers, newCustomer]);
         setNewName("");
         setNewImage("");
+        setNewType("Regular");
         setErrors({ name: "", image: "" });
     };
 
@@ -97,6 +105,15 @@ function CustomerComponent() {
                     onChange={handleImageChange}
                 />
                 {errors.image && <div className="text-danger">{errors.image}</div>}
+                <select
+                    className="form-control mb-2"
+                    value={newType}
+                    onChange={(e) => setNewType(e.target.value)}
+                >
+                    <option value="Regular">Regular</option>
+                    <option value="Loyal">Loyal</option>
+                    <option value="VIP">VIP</option>
+                </select>
                 <button className="btn btn-primary" onClick={handleAddCustomer}>Add Customer</button>
             </div>
 
@@ -105,6 +122,12 @@ function CustomerComponent() {
                     <li key={customer.id} className="list-group-item d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center">
                             <img src={customer.image} alt={customer.name} className="img-thumbnail mr-3" style={{ width: 50, height: 50 }} />
+                            <div>
+                                <p className="mb-0">{customer.name}</p>
+                                <p className="mb-0 text-muted">{customer.type}</p>
+                            </div>
+                        </div>
+                        <div>
                             {editCustomer && editCustomer.id === customer.id ? (
                                 <>
                                     <input
@@ -120,6 +143,15 @@ function CustomerComponent() {
                                         onChange={handleImageChange}
                                     />
                                     {errors.image && <div className="text-danger">{errors.image}</div>}
+                                    <select
+                                        className="form-control mt-2"
+                                        value={newType}
+                                        onChange={(e) => setNewType(e.target.value)}
+                                    >
+                                        <option value="Regular">Regular</option>
+                                        <option value="Loyal">Loyal</option>
+                                        <option value="VIP">VIP</option>
+                                    </select>
                                 </>
                             ) : (
                                 customer.name
