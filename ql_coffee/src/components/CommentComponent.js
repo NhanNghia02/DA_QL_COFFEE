@@ -54,7 +54,7 @@ function CommentComponent() {
 
     return (
         <div className="container my-4">
-            <h2 className="text-primary text-center mb-4">Bình Luận Và Đánh Giá</h2>
+            <h2 className="text-primary text-center mb-4">Comments and Ratings</h2>
 
             <div className="card mb-4 p-4 shadow-sm">
                 <div className="form-group">
@@ -114,4 +114,4 @@ function CommentComponent() {
     );
 }
 
-export default CommentComponent;
+export default CommentComponent;;

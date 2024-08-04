@@ -17,30 +17,26 @@ import ProfileComponent from './components/ProfileComponent';
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/admin/logins" element={<LoginComponent />} />
-        <Route path="/admin/registers" element={<RegisterComponent />} />
-        
-        <Route
-          path="*"
-          element={
-            <Layout>
-              <Routes>
-                <Route path="/" element={<HomeComponent />} />
-                <Route path="/admin/dashboard" element={<HomeComponent />} />
-                <Route path="/admin/table" element={<TableComponent />} />
-                <Route path="/admin/customers" element={<CustomerComponent />} />
-                <Route path="/admin/employees" element={<EmployeeComponent />} />
-                <Route path="/admin/orders" element={<OrderComponent />} />
-                <Route path="/admin/comments" element={<CommentComponent />} />
-                <Route path="/admin/questions" element={<QuestionComponent />} />
-                <Route path="/admin/profile" element={<ProfileComponent />} />
-
-              </Routes>
-            </Layout>
-          }
-        />
-      </Routes>
+      <div className="app-container">
+        <Layout>
+          <main>
+            <Routes>
+              <Route path="/" element={<HomeComponent />} />
+              <Route path="/admin" element={<HomeComponent />} />
+              <Route path="/admin/table" element={<TableComponent />} />
+              <Route path="/admin/customers" element={<CustomerComponent />} />
+              <Route path="/admin/employees" element={<EmployeeComponent />} />
+              <Route path="/admin/orders" element={<OrderComponent />} />
+              <Route path="/admin/comments" element={<CommentComponent />} />
+              <Route path="/admin/questions" element={<QuestionComponent />} />
+              
+                <Route path="/" element={<TableComponent />} />
+                <Route path="/order" element={<OrderComponent />} />
+            
+            </Routes>
+          </main>
+        </Layout>
+      </div>
     </Router>
   );
 }
