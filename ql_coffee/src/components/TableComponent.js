@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Sử dụng hook useNavigate để điều hướng
+import { useNavigate } from "react-router-dom";
 import { db } from '../Firebase-config';
 import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import '../layouts/css/Table.css';
@@ -112,9 +112,17 @@ function TableComponent() {
         setEditItems(updatedItems);
     };
 
-    const handlePayment = (table) => {
+    const handlePayment = async (table) => {
         // Chuyển hướng đến trang hóa đơn với thông tin bàn
         navigate('/order', { state: { table } });
+        // Xóa bàn sau khi thanh toán
+        try {
+            const tableDoc = doc(db, 'tables', table.id);
+            await deleteDoc(tableDoc);
+            fetchTables();
+        } catch (error) {
+            console.error("Lỗi xóa: ", error);
+        }
     };
 
     return (

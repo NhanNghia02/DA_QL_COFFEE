@@ -26,7 +26,10 @@ function App() {
               <Route path="/admin/orders" element={<OrderComponent />} />
               <Route path="/admin/comments" element={<CommentComponent />} />
               <Route path="/admin/questions" element={<QuestionComponent />} />
-
+              
+                <Route path="/" element={<TableComponent />} />
+                <Route path="/order" element={<OrderComponent />} />
+            
             </Routes>
           </main>
         </Layout>
