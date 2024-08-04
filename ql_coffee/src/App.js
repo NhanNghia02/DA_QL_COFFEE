@@ -10,6 +10,9 @@ import EmployeeComponent from './components/EmployeeComponent';
 import CommentComponent from './components/CommentComponent';
 import QuestionComponent from './components/QuestionComponent';
 import OrderComponent from './components/OrderComponent';
+import LoginComponent from './components/LoginComponent';
+import RegisterComponent from './components/RegisterComponent';
+import ProfileComponent from './components/ProfileComponent';
 
 function App() {
   return (

@@ -1,3 +1,4 @@
+
 /* Table.css */
 
 .container {
@@ -44,4 +45,30 @@
 
 .btn-danger {
   border-radius: 0;
+
+.floor-plan-row {
+  position: relative;
+}
+.table {
+  position: relative;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 2px solid #dedede;
+  border-radius: 4px;
+}
+.table-actions {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.floor-plan-row:hover .table-actions {
+  opacity: 1;
+}
+.table-number {
+  display: inline-block;
+
+}
 }

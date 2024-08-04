@@ -125,10 +125,16 @@ function TableComponent() {
         }
     };
 
+    const handleView = (event) => {
+
+    }
+
     return (
         <div className="container">
+
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1 className="h3 text-gray-800">Sơ Đồ Số Bàn</h1>
+           
                 <button className="btn btn-success" onClick={handleAddTable}>
                     Thêm Bàn
                 </button>
@@ -259,6 +265,7 @@ function TableComponent() {
                                         </button>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     ))

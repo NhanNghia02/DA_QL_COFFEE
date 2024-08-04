@@ -1,22 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, where } from "firebase/firestore";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function CustomerComponent() {
-    const [customers, setCustomers] = useState([
-        { id: 1, name: "Xuân Giang", image: "https://via.placeholder.com/50", type: "Regular" },
-        { id: 2, name: "Nhân Nghĩa", image: "https://via.placeholder.com/50", type: "Regular" },
-        { id: 3, name: "Việt Hùng", image: "https://via.placeholder.com/50", type: "VIP" },
-        { id: 4, name: "Đan Huy", image: "https://via.placeholder.com/50", type: "Loyal" },
-    ]);
-
+    const [user, setUser] = useState(null);
+    const [customers, setCustomers] = useState([]);
     const [editCustomer, setEditCustomer] = useState(null);
     const [newName, setNewName] = useState("");
     const [newImage, setNewImage] = useState("");
     const [newType, setNewType] = useState("Regular");
-    const [errors, setErrors] = useState({ name: "", image: "" });
+    const [newPhoneNumber, setNewPhoneNumber] = useState("");
+    const [newPaymentAmount, setNewPaymentAmount] = useState("");
+    const [newDateVisited, setNewDateVisited] = useState("");
+    const [filterDate, setFilterDate] = useState("All");
+    const [errors, setErrors] = useState({ name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" });
 
-    const handleDelete = (id) => {
-        setCustomers(customers.filter(customer => customer.id !== id));
+    const auth = getAuth();
+    const db = getFirestore();
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user);
+                fetchCustomers(user.uid);
+            } else {
+                setUser(null);
+                setCustomers([]);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const fetchCustomers = async (userId) => {
+        try {
+            const q = query(collection(db, "customers"), where("userId", "==", userId));
+            const querySnapshot = await getDocs(q);
+            const customerList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setCustomers(customerList);
+        } catch (err) {
+            console.error("Error fetching customers: ", err);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await deleteDoc(doc(db, "customers", id));
+            setCustomers(customers.filter(customer => customer.id !== id));
+        } catch (err) {
+            console.error("Error deleting customer: ", err);
+        }
     };
 
     const handleEdit = (customer) => {
@@ -24,19 +58,32 @@ function CustomerComponent() {
         setNewName(customer.name);
         setNewImage(customer.image);
         setNewType(customer.type);
+        setNewPhoneNumber(customer.phoneNumber);
+        setNewPaymentAmount(customer.paymentAmount);
+        setNewDateVisited(customer.dateVisited);
     };
 
     const validateForm = () => {
         let valid = true;
-        const newErrors = { name: "", image: "" };
+        const newErrors = { name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" };
 
         if (!newName.trim()) {
             newErrors.name = "Name is required.";
             valid = false;
         }
 
-        if (!newImage && !editCustomer) {
-            newErrors.image = "Image is required.";
+        if (!newPhoneNumber.trim()) {
+            newErrors.phoneNumber = "Phone number is required.";
+            valid = false;
+        }
+
+        if (!newPaymentAmount.trim() || isNaN(newPaymentAmount)) {
+            newErrors.paymentAmount = "Valid payment amount is required.";
+            valid = false;
+        }
+
+        if (!newDateVisited.trim()) {
+            newErrors.dateVisited = "Date visited is required.";
             valid = false;
         }
 
@@ -44,35 +91,70 @@ function CustomerComponent() {
         return valid;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!validateForm()) return;
 
-        setCustomers(customers.map(customer =>
-            customer.id === editCustomer.id
-                ? { ...customer, name: newName, image: newImage, type: newType }
-                : customer
-        ));
-        setEditCustomer(null);
-        setNewName("");
-        setNewImage("");
-        setNewType("Regular");
-        setErrors({ name: "", image: "" });
+        try {
+            await updateDoc(doc(db, "customers", editCustomer.id), {
+                name: newName,
+                image: newImage,
+                type: newType,
+                phoneNumber: newPhoneNumber,
+                paymentAmount: newPaymentAmount,
+                dateVisited: newDateVisited
+            });
+            setCustomers(customers.map(customer =>
+                customer.id === editCustomer.id
+                    ? { ...customer, name: newName, image: newImage, type: newType, phoneNumber: newPhoneNumber, paymentAmount: newPaymentAmount, dateVisited: newDateVisited }
+                    : customer
+            ));
+            setEditCustomer(null);
+            setNewName("");
+            setNewImage("");
+            setNewType("Regular");
+            setNewPhoneNumber("");
+            setNewPaymentAmount("");
+            setNewDateVisited("");
+            setErrors({ name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" });
+        } catch (err) {
+            console.error("Error updating customer: ", err);
+        }
     };
 
-    const handleAddCustomer = () => {
+    const handleAddCustomer = async () => {
         if (!validateForm()) return;
 
-        const newCustomer = {
-            id: customers.length + 1,
-            name: newName,
-            image: newImage || "https://via.placeholder.com/50", // Use placeholder if no image provided
-            type: newType
-        };
-        setCustomers([...customers, newCustomer]);
-        setNewName("");
-        setNewImage("");
-        setNewType("Regular");
-        setErrors({ name: "", image: "" });
+        try {
+            const userId = user.uid;
+            const docRef = await addDoc(collection(db, "customers"), {
+                name: newName,
+                image: newImage || "https://via.placeholder.com/50", // Use placeholder if no image provided
+                type: newType,
+                phoneNumber: newPhoneNumber,
+                paymentAmount: newPaymentAmount,
+                dateVisited: newDateVisited,
+                userId: userId
+            });
+            const newCustomer = {
+                id: docRef.id,
+                name: newName,
+                image: newImage || "https://via.placeholder.com/50",
+                type: newType,
+                phoneNumber: newPhoneNumber,
+                paymentAmount: newPaymentAmount,
+                dateVisited: newDateVisited
+            };
+            setCustomers([...customers, newCustomer]);
+            setNewName("");
+            setNewImage("");
+            setNewType("Regular");
+            setNewPhoneNumber("");
+            setNewPaymentAmount("");
+            setNewDateVisited("");
+            setErrors({ name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" });
+        } catch (err) {
+            console.error("Error adding customer: ", err);
+        }
     };
 
     const handleImageChange = (e) => {
@@ -85,6 +167,16 @@ function CustomerComponent() {
             reader.readAsDataURL(file);
         }
     };
+
+    const filteredCustomers = filterDate === "All" ? customers : customers.filter(customer => customer.dateVisited === filterDate);
+
+    const totalPaymentByPhoneNumber = filteredCustomers.reduce((acc, customer) => {
+        if (!acc[customer.phoneNumber]) {
+            acc[customer.phoneNumber] = 0;
+        }
+        acc[customer.phoneNumber] += parseFloat(customer.paymentAmount || 0);
+        return acc;
+    }, {});
 
     return (
         <div className="container">
@@ -100,11 +192,28 @@ function CustomerComponent() {
                 />
                 {errors.name && <div className="text-danger">{errors.name}</div>}
                 <input
-                    type="file"
-                    className="form-control-file mb-2"
-                    onChange={handleImageChange}
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="Enter phone number"
+                    value={newPhoneNumber}
+                    onChange={(e) => setNewPhoneNumber(e.target.value)}
                 />
-                {errors.image && <div className="text-danger">{errors.image}</div>}
+                {errors.phoneNumber && <div className="text-danger">{errors.phoneNumber}</div>}
+                <input
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="Enter payment amount"
+                    value={newPaymentAmount}
+                    onChange={(e) => setNewPaymentAmount(e.target.value)}
+                />
+                {errors.paymentAmount && <div className="text-danger">{errors.paymentAmount}</div>}
+                <input
+                    type="date"
+                    className="form-control mb-2"
+                    value={newDateVisited}
+                    onChange={(e) => setNewDateVisited(e.target.value)}
+                />
+                {errors.dateVisited && <div className="text-danger">{errors.dateVisited}</div>}
                 <select
                     className="form-control mb-2"
                     value={newType}
@@ -114,48 +223,47 @@ function CustomerComponent() {
                     <option value="Loyal">Loyal</option>
                     <option value="VIP">VIP</option>
                 </select>
-                <button className="btn btn-primary" onClick={handleAddCustomer}>Add Customer</button>
+                <button className="btn btn-primary" onClick={editCustomer ? handleSave : handleAddCustomer}>
+                    {editCustomer ? "Save Changes" : "Add Customer"}
+                </button>
             </div>
 
-            <ul className="list-group">
-                {customers.map((customer) => (
-                    <li key={customer.id} className="list-group-item d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center">
-                            <img src={customer.image} alt={customer.name} className="img-thumbnail mr-3" style={{ width: 50, height: 50 }} />
-                            <div>
-                                <p className="mb-0">{customer.name}</p>
-                                <p className="mb-0 text-muted">{customer.type}</p>
-                            </div>
+            <div className="mb-4">
+                <label>Filter by date:</label>
+                <select
+                    className="form-control"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                >
+                    <option value="All">All</option>
+                    <option value="2024-08-01">2024-08-01</option>
+                    <option value="2024-08-02">2024-08-02</option>
+                    {/* Add more options as needed */}
+                </select>
+            </div>
+
+            <h4>Total Payment by Phone Number:</h4>
+            <ul className="list-group mb-4">
+                {Object.entries(totalPaymentByPhoneNumber).map(([phoneNumber, totalPayment]) => (
+                    <li key={phoneNumber} className="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            Phone: {phoneNumber}
                         </div>
                         <div>
-                            {editCustomer && editCustomer.id === customer.id ? (
-                                <>
-                                    <input
-                                        type="text"
-                                        className="form-control mr-2"
-                                        value={newName}
-                                        onChange={(e) => setNewName(e.target.value)}
-                                    />
-                                    {errors.name && <div className="text-danger">{errors.name}</div>}
-                                    <input
-                                        type="file"
-                                        className="form-control-file"
-                                        onChange={handleImageChange}
-                                    />
-                                    {errors.image && <div className="text-danger">{errors.image}</div>}
-                                    <select
-                                        className="form-control mt-2"
-                                        value={newType}
-                                        onChange={(e) => setNewType(e.target.value)}
-                                    >
-                                        <option value="Regular">Regular</option>
-                                        <option value="Loyal">Loyal</option>
-                                        <option value="VIP">VIP</option>
-                                    </select>
-                                </>
-                            ) : (
-                                customer.name
-                            )}
+                            Total Payment: ${totalPayment.toFixed(2)}
+                        </div>
+                    </li>
+                ))}
+            </ul>
+
+            <ul className="list-group">
+                {filteredCustomers.map((customer) => (
+                    <li key={customer.id} className="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div>Name: {customer.name}</div>
+                            <div>Phone: {customer.phoneNumber}</div>
+                            <div>Payment: ${customer.paymentAmount}</div>
+                            <div>Date Visited: {customer.dateVisited}</div>
                         </div>
                         <div>
                             {editCustomer && editCustomer.id === customer.id ? (

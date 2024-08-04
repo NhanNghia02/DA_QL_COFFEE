@@ -20,7 +20,7 @@ const Sidebar = () => {
           <hr className="sidebar-divider my-0" />
 
           <li className="nav-item">
-            <Link className="nav-link" to="/admin">
+            <Link className="nav-link" to="/admin/dashboard">
               <i className="fas fa-tachometer-alt"></i>
               <span>Thống Kê</span>
             </Link>

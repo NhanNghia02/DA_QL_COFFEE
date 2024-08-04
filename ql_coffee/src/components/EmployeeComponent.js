@@ -1,22 +1,53 @@
-import React, { useState } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, where } from "firebase/firestore";
+
+const auth = getAuth();
+const db = getFirestore();
 
 function EmployeeComponent() {
-    const [employees, setEmployees] = useState([
-        { id: 1, name: "John Doe", role: "Admin", image: "https://via.placeholder.com/50" },
-        { id: 2, name: "Jane Smith", role: "Staff", image: "https://via.placeholder.com/50" },
-        { id: 3, name: "Alice Johnson", role: "Staff", image: "https://via.placeholder.com/50" },
-    ]);
-
+    const [user, setUser] = useState(null);
+    const [employees, setEmployees] = useState([]);
     const [editEmployee, setEditEmployee] = useState(null);
     const [newName, setNewName] = useState("");
     const [newRole, setNewRole] = useState("Staff");
     const [newImage, setNewImage] = useState("");
     const [errors, setErrors] = useState({ name: "", role: "", image: "" });
     const [filterRole, setFilterRole] = useState("All");
+    const [imagePreview, setImagePreview] = useState("");
 
-    const handleDelete = (id) => {
-        setEmployees(employees.filter(employee => employee.id !== id));
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user);
+                fetchEmployees(user.uid);
+            } else {
+                setUser(null);
+                setEmployees([]);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const fetchEmployees = async (userId) => {
+        try {
+            const q = query(collection(db, "employees"), where("userId", "==", userId));
+            const querySnapshot = await getDocs(q);
+            const employeeList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setEmployees(employeeList);
+        } catch (err) {
+            console.error("Error fetching employees: ", err);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await deleteDoc(doc(db, "employees", id));
+            setEmployees(employees.filter(employee => employee.id !== id));
+        } catch (err) {
+            console.error("Error deleting employee: ", err);
+        }
     };
 
     const handleEdit = (employee) => {
@@ -24,6 +55,7 @@ function EmployeeComponent() {
         setNewName(employee.name);
         setNewRole(employee.role);
         setNewImage(employee.image);
+        setImagePreview(employee.image);
     };
 
     const validateForm = () => {
@@ -49,33 +81,55 @@ function EmployeeComponent() {
         return valid;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!validateForm()) return;
 
-        setEmployees(employees.map(employee =>
-            employee.id === editEmployee.id ? { ...employee, name: newName, role: newRole, image: newImage } : employee
-        ));
-        setEditEmployee(null);
-        setNewName("");
-        setNewRole("Staff");
-        setNewImage("");
-        setErrors({ name: "", role: "", image: "" });
+        try {
+            await updateDoc(doc(db, "employees", editEmployee.id), {
+                name: newName,
+                role: newRole,
+                image: newImage
+            });
+            setEmployees(employees.map(employee =>
+                employee.id === editEmployee.id ? { ...employee, name: newName, role: newRole, image: newImage } : employee
+            ));
+            setEditEmployee(null);
+            setNewName("");
+            setNewRole("Staff");
+            setNewImage("");
+            setImagePreview("");
+            setErrors({ name: "", role: "", image: "" });
+        } catch (err) {
+            console.error("Error updating employee: ", err);
+        }
     };
 
-    const handleAddEmployee = () => {
+    const handleAddEmployee = async () => {
         if (!validateForm()) return;
 
-        const newEmployee = {
-            id: employees.length + 1,
-            name: newName,
-            role: newRole,
-            image: newImage || "https://via.placeholder.com/50" // Use placeholder if no image provided
-        };
-        setEmployees([...employees, newEmployee]);
-        setNewName("");
-        setNewRole("Staff");
-        setNewImage("");
-        setErrors({ name: "", role: "", image: "" });
+        try {
+            const userId = user.uid;
+            const docRef = await addDoc(collection(db, "employees"), {
+                name: newName,
+                role: newRole,
+                image: newImage || "https://via.placeholder.com/50", 
+                userId: userId // Save userId to link employee with user
+            });
+            const newEmployee = {
+                id: docRef.id,
+                name: newName,
+                role: newRole,
+                image: newImage || "https://via.placeholder.com/50"
+            };
+            setEmployees([...employees, newEmployee]);
+            setNewName("");
+            setNewRole("Staff");
+            setNewImage("");
+            setImagePreview("");
+            setErrors({ name: "", role: "", image: "" });
+        } catch (err) {
+            console.error("Error adding employee: ", err);
+        }
     };
 
     const handleImageChange = (e) => {
@@ -84,6 +138,7 @@ function EmployeeComponent() {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setNewImage(reader.result);
+                setImagePreview(reader.result);
             };
             reader.readAsDataURL(file);
         }
@@ -93,7 +148,7 @@ function EmployeeComponent() {
 
     return (
         <div className="container">
-            <h2 className="my-4">Employee List</h2>
+            <h2 className="my-4">Danh Sách Nhân Viên</h2>
 
             <div className="mb-4">
                 <input
@@ -118,8 +173,11 @@ function EmployeeComponent() {
                     className="form-control-file mb-2"
                     onChange={handleImageChange}
                 />
+                {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mb-2" style={{ width: 100, height: 100 }} />}
                 {errors.image && <div className="text-danger">{errors.image}</div>}
-                <button className="btn btn-primary" onClick={handleAddEmployee}>Add Employee</button>
+                <button className="btn btn-primary" onClick={editEmployee ? handleSave : handleAddEmployee}>
+                    {editEmployee ? "Save Changes" : "Add Employee"}
+                </button>
             </div>
 
             <div className="mb-4">
