@@ -34,7 +34,15 @@ const Sidebar = () => {
               <span>Số Bàn</span>
             </Link>
           </li>
-          
+          <hr className="sidebar-divider d-none d-md-block" />
+
+          <li className="nav-item">
+            <Link className="nav-link" to="/admin/menus">
+              <i className="fa fa-coffee fa-question-circle"></i>
+              <span>Thực Đơn</span>
+            </Link>
+          </li>
+
           <hr className="sidebar-divider d-none d-md-block" />
 
           <li className="nav-item">

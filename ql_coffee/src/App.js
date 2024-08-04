@@ -13,6 +13,7 @@ import OrderComponent from './components/OrderComponent';
 import LoginComponent from './components/LoginComponent';
 import RegisterComponent from './components/RegisterComponent';
 import ProfileComponent from './components/ProfileComponent';
+import MenusComponent from './components/MenusComponent';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/admin/orders" element={<OrderComponent />} />
                 <Route path="/admin/comments" element={<CommentComponent />} />
                 <Route path="/admin/questions" element={<QuestionComponent />} />
+                <Route path="/admin/menus" element={<MenusComponent />} />
                 <Route path="/admin/profile" element={<ProfileComponent />} />
 
               </Routes>
