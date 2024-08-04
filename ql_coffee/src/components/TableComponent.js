@@ -75,11 +75,15 @@ function TableComponent() {
         }
     };
 
+    const handleView = (event) => {
+
+    }
+
     return (
         <div className="container">
             <div className="d-sm-flex align-items-center justify-content-between mb-4">
                 <h1 className="h3 mb-0 text-gray-800">Sơ Đồ Số Bàn</h1>
-                <button className="btn btn-success" onClick={ handleAddTable }>
+                <button className="btn btn-success" onClick={handleAddTable}>
                     Thêm Bàn
                 </button>
             </div>
@@ -115,13 +119,18 @@ function TableComponent() {
                 {tables.length > 0 ? (
                     tables.map(table => (
                         <div key={table.id} className="floor-plan-row">
-                            <div className="table">
-                                <span className="table-number">Bàn {table.number}</span>
+                            <div className="table mt-2">
+                                <span className="table-number">Bàn Số {table.number}</span>
+                            </div>
+                            <div className="table-actions">
+                                <button className="btn btn-success mx-2" onClick={() => handleView(table.id)}>
+                                    <i className="fa fa-eye"></i> Xem
+                                </button>
                                 <button className="btn btn-warning mx-2" onClick={() => handleEdit(table)}>
-                                    <i className="fa fa-pencil-square"></i>
+                                    <i className="fa fa-pencil-square"></i> Sửa
                                 </button>
                                 <button className="btn btn-danger mx-2" onClick={() => handleDelete(table.id)}>
-                                    <i className="fa fa-close"></i>
+                                    <i className="fa fa-close"></i> Xóa
                                 </button>
                             </div>
                         </div>

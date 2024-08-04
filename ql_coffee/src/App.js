@@ -10,27 +10,37 @@ import EmployeeComponent from './components/EmployeeComponent';
 import CommentComponent from './components/CommentComponent';
 import QuestionComponent from './components/QuestionComponent';
 import OrderComponent from './components/OrderComponent';
+import LoginComponent from './components/LoginComponent';
+import RegisterComponent from './components/RegisterComponent';
+import ProfileComponent from './components/ProfileComponent';
 
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Layout>
-          <main>
-            <Routes>
-              <Route path="/" element={<HomeComponent />} />
-              <Route path="/admin" element={<HomeComponent />} />
-              <Route path="/admin/table" element={<TableComponent />} />
-              <Route path="/admin/customers" element={<CustomerComponent />} />
-              <Route path="/admin/employees" element={<EmployeeComponent />} />
-              <Route path="/admin/orders" element={<OrderComponent />} />
-              <Route path="/admin/comments" element={<CommentComponent />} />
-              <Route path="/admin/questions" element={<QuestionComponent />} />
+      <Routes>
+        <Route path="/admin/logins" element={<LoginComponent />} />
+        <Route path="/admin/registers" element={<RegisterComponent />} />
+        
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<HomeComponent />} />
+                <Route path="/admin/dashboard" element={<HomeComponent />} />
+                <Route path="/admin/table" element={<TableComponent />} />
+                <Route path="/admin/customers" element={<CustomerComponent />} />
+                <Route path="/admin/employees" element={<EmployeeComponent />} />
+                <Route path="/admin/orders" element={<OrderComponent />} />
+                <Route path="/admin/comments" element={<CommentComponent />} />
+                <Route path="/admin/questions" element={<QuestionComponent />} />
+                <Route path="/admin/profile" element={<ProfileComponent />} />
 
-            </Routes>
-          </main>
-        </Layout>
-      </div>
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
