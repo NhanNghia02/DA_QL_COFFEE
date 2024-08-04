@@ -1,21 +1,25 @@
-.floor-plan {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px; 
-  justify-content: flex-start;
+.floor-plan-row {
+  position: relative;
 }
 .table {
-  border: 2px solid #ddd; 
+  position: relative;
   padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-  background-color: #f8f9fa; 
-  width: 250px;
+  background-color: #f8f9fa;
+  border: 2px solid #dedede;
+  border-radius: 4px;
+}
+.table-actions {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.floor-plan-row:hover .table-actions {
+  opacity: 1;
 }
 .table-number {
-  font-size: 1.2rem;
-  font-weight: bold; 
-}
-.btn-warning, .btn-danger {
-  margin-top: 0;
+  display: inline-block;
+  margin-right: 10px;
 }
