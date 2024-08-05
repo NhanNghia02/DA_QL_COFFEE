@@ -34,7 +34,7 @@ const Sidebar = () => {
               <span>Số Bàn</span>
             </Link>
           </li>
-          
+
           <hr className="sidebar-divider d-none d-md-block" />
 
           <li className="nav-item">
@@ -77,6 +77,13 @@ const Sidebar = () => {
             <Link className="nav-link" to="/admin/questions">
               <i className="fa-regular fa-question-circle"></i>
               <span>Câu Hỏi</span>
+            </Link>
+          </li>
+
+          <li className="nav-item">
+            <Link className="nav-link" to="/admin/revenues">
+              <i className="fa-solid fa-money-bill"></i>
+              <span>Doanh Thu</span>
             </Link>
           </li>
 

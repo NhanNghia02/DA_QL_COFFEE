@@ -13,10 +13,16 @@ import OrderComponent from './components/OrderComponent';
 import LoginComponent from './components/LoginComponent';
 import RegisterComponent from './components/RegisterComponent';
 import ProfileComponent from './components/ProfileComponent';
+<<<<<<< Updated upstream
+=======
+import MenusComponent from './components/MenusComponent';
+import RevenueComponent from './components/RevennuComponent';
+>>>>>>> Stashed changes
 
 function App() {
   return (
     <Router>
+<<<<<<< Updated upstream
       <div className="app-container">
         <Layout>
           <main>
@@ -37,6 +43,34 @@ function App() {
           </main>
         </Layout>
       </div>
+=======
+      <Routes>
+        <Route path="/admin/logins" element={<LoginComponent />} />
+        <Route path="/admin/registers" element={<RegisterComponent />} />
+        
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<HomeComponent />} />
+                <Route path="/admin/dashboard" element={<HomeComponent />} />
+                <Route path="/admin/table" element={<TableComponent />} />
+                <Route path="/admin/customers" element={<CustomerComponent />} />
+                <Route path="/admin/employees" element={<EmployeeComponent />} />
+                <Route path="/admin/orders" element={<OrderComponent />} />
+                <Route path="/admin/comments" element={<CommentComponent />} />
+                <Route path="/admin/questions" element={<QuestionComponent />} />
+                <Route path="/admin/menus" element={<MenusComponent />} />
+                <Route path="/admin/profile" element={<ProfileComponent />} />
+                <Route path="/admin/revenues" element={<RevenueComponent />} />
+
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
+>>>>>>> Stashed changes
     </Router>
   );
 }
