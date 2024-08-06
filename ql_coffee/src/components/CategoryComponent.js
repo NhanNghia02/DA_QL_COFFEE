@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, where } from "firebase/firestore";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../layouts/css/category.css';
 
 function CategoryComponent() {
     const [user, setUser] = useState(null);
@@ -97,7 +96,7 @@ function CategoryComponent() {
             const userId = user.uid;
             const docRef = await addDoc(collection(db, "categories"), {
                 name: newCategoryName,
-                image: newCategoryImage || "https://via.placeholder.com/50",
+                image: newCategoryImage || "https://via.placeholder.com/50", // Use placeholder if no image provided
                 userId: userId
             });
             const newCategory = {
@@ -127,13 +126,13 @@ function CategoryComponent() {
 
     return (
         <div className="container">
-            <h2 className="my-4">Danh Sách Danh mục</h2>
+            <h2 className="my-4">Category Management</h2>
 
             <div className="mb-4">
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Nhập tên danh mục"
+                    placeholder="Enter category name"
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                 />
@@ -144,24 +143,24 @@ function CategoryComponent() {
                     onChange={handleImageChange}
                 />
                 <button className="btn btn-primary" onClick={editCategory ? handleSave : handleAddCategory}>
-                    {editCategory ? "Lưu thay đổi" : "Thêm danh mục"}
+                    {editCategory ? "Save Changes" : "Add Category"}
                 </button>
             </div>
 
             <ul className="list-group">
                 {categories.map((category) => (
                     <li key={category.id} className="list-group-item d-flex justify-content-between align-items-center">
-                        <div className="category-info">
-                            <div className="category-name">Tên: {category.name}</div>
-                            {category.image && <img src={category.image} alt={category.name} className="category-image" />}
+                        <div>
+                            <div>Name: {category.name}</div>
+                            {category.image && <img src={category.image} alt={category.name} style={{ width: "50px" }} />}
                         </div>
-                        <div className="category-actions">
+                        <div>
                             {editCategory && editCategory.id === category.id ? (
-                                <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Lưu</button>
+                                <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Save</button>
                             ) : (
-                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(category)}>Sửa</button>
+                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(category)}>Edit</button>
                             )}
-                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(category.id)}>Xóa</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(category.id)}>Delete</button>
                         </div>
                     </li>
                 ))}

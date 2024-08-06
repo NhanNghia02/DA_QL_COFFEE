@@ -36,7 +36,7 @@ function App() {
                 <Route path="/admin/employees" element={<EmployeeComponent />} />
                 <Route path="/admin/orders" element={<OrderComponent />} />
                 <Route path="/admin/comments" element={<CommentComponent />} />
-                <Route path="/admin/questions" element={<CategoryComponent />} />
+                <Route path="/admin/category" element={<CategoryComponent />} />
                 <Route path="/admin/menus" element={<MenusComponent />} />
                 <Route path="/admin/profile" element={<ProfileComponent />} />
 

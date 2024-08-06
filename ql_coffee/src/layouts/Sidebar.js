@@ -74,9 +74,9 @@ const Sidebar = () => {
           <hr className="sidebar-divider d-none d-md-block" />
 
           <li className="nav-item">
-            <Link className="nav-link" to="/admin/questions">
-              <i className="fa-regular fa-question-circle"></i>
-              <span>Câu Hỏi</span>
+            <Link className="nav-link" to="/admin/category">
+              <i className="fa-solid fa-list"></i>
+              <span>Danh mục</span>
             </Link>
           </li>
 
