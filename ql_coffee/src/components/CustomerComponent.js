@@ -3,19 +3,21 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, where } from "firebase/firestore";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const auth = getAuth();
-const db = getFirestore();
-
 function CustomerComponent() {
     const [user, setUser] = useState(null);
     const [customers, setCustomers] = useState([]);
     const [editCustomer, setEditCustomer] = useState(null);
     const [newName, setNewName] = useState("");
+    const [newImage, setNewImage] = useState("");
+    const [newType, setNewType] = useState("Regular");
     const [newPhoneNumber, setNewPhoneNumber] = useState("");
     const [newPaymentAmount, setNewPaymentAmount] = useState("");
     const [newDateVisited, setNewDateVisited] = useState("");
-    const [errors, setErrors] = useState({ name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" });
     const [filterDate, setFilterDate] = useState("All");
+    const [errors, setErrors] = useState({ name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" });
+
+    const auth = getAuth();
+    const db = getFirestore();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -54,6 +56,8 @@ function CustomerComponent() {
     const handleEdit = (customer) => {
         setEditCustomer(customer);
         setNewName(customer.name);
+        setNewImage(customer.image);
+        setNewType(customer.type);
         setNewPhoneNumber(customer.phoneNumber);
         setNewPaymentAmount(customer.paymentAmount);
         setNewDateVisited(customer.dateVisited);
@@ -93,15 +97,21 @@ function CustomerComponent() {
         try {
             await updateDoc(doc(db, "customers", editCustomer.id), {
                 name: newName,
+                image: newImage,
+                type: newType,
                 phoneNumber: newPhoneNumber,
                 paymentAmount: newPaymentAmount,
                 dateVisited: newDateVisited
             });
             setCustomers(customers.map(customer =>
-                customer.id === editCustomer.id ? { ...customer, name: newName, phoneNumber: newPhoneNumber, paymentAmount: newPaymentAmount, dateVisited: newDateVisited } : customer
+                customer.id === editCustomer.id
+                    ? { ...customer, name: newName, image: newImage, type: newType, phoneNumber: newPhoneNumber, paymentAmount: newPaymentAmount, dateVisited: newDateVisited }
+                    : customer
             ));
             setEditCustomer(null);
             setNewName("");
+            setNewImage("");
+            setNewType("Regular");
             setNewPhoneNumber("");
             setNewPaymentAmount("");
             setNewDateVisited("");
@@ -118,6 +128,8 @@ function CustomerComponent() {
             const userId = user.uid;
             const docRef = await addDoc(collection(db, "customers"), {
                 name: newName,
+                image: newImage || "https://via.placeholder.com/50", // Use placeholder if no image provided
+                type: newType,
                 phoneNumber: newPhoneNumber,
                 paymentAmount: newPaymentAmount,
                 dateVisited: newDateVisited,
@@ -126,12 +138,16 @@ function CustomerComponent() {
             const newCustomer = {
                 id: docRef.id,
                 name: newName,
+                image: newImage || "https://via.placeholder.com/50",
+                type: newType,
                 phoneNumber: newPhoneNumber,
                 paymentAmount: newPaymentAmount,
                 dateVisited: newDateVisited
             };
             setCustomers([...customers, newCustomer]);
             setNewName("");
+            setNewImage("");
+            setNewType("Regular");
             setNewPhoneNumber("");
             setNewPaymentAmount("");
             setNewDateVisited("");
@@ -141,9 +157,19 @@ function CustomerComponent() {
         }
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const filteredCustomers = filterDate === "All" ? customers : customers.filter(customer => customer.dateVisited === filterDate);
 
-    // Tính tổng số tiền thanh toán theo số điện thoại
     const totalPaymentByPhoneNumber = filteredCustomers.reduce((acc, customer) => {
         if (!acc[customer.phoneNumber]) {
             acc[customer.phoneNumber] = 0;
@@ -188,6 +214,15 @@ function CustomerComponent() {
                     onChange={(e) => setNewDateVisited(e.target.value)}
                 />
                 {errors.dateVisited && <div className="text-danger">{errors.dateVisited}</div>}
+                <select
+                    className="form-control mb-2"
+                    value={newType}
+                    onChange={(e) => setNewType(e.target.value)}
+                >
+                    <option value="Regular">Regular</option>
+                    <option value="Loyal">Loyal</option>
+                    <option value="VIP">VIP</option>
+                </select>
                 <button className="btn btn-primary" onClick={editCustomer ? handleSave : handleAddCustomer}>
                     {editCustomer ? "Save Changes" : "Add Customer"}
                 </button>
