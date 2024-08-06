@@ -31,7 +31,7 @@ function CustomerComponent() {
         });
 
         return () => unsubscribe();
-    }, []);
+    });
 
     const fetchCustomers = async (userId) => {
         try {
@@ -40,7 +40,7 @@ function CustomerComponent() {
             const customerList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setCustomers(customerList);
         } catch (err) {
-            console.error("Error fetching customers: ", err);
+            console.error("Lỗi khi lấy danh sách khách hàng: ", err);
         }
     };
 
@@ -49,7 +49,7 @@ function CustomerComponent() {
             await deleteDoc(doc(db, "customers", id));
             setCustomers(customers.filter(customer => customer.id !== id));
         } catch (err) {
-            console.error("Error deleting customer: ", err);
+            console.error("Lỗi khi xóa khách hàng: ", err);
         }
     };
 
@@ -68,22 +68,22 @@ function CustomerComponent() {
         const newErrors = { name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" };
 
         if (!newName.trim()) {
-            newErrors.name = "Name is required.";
+            newErrors.name = "Tên là bắt buộc.";
             valid = false;
         }
 
         if (!newPhoneNumber.trim()) {
-            newErrors.phoneNumber = "Phone number is required.";
+            newErrors.phoneNumber = "Số điện thoại là bắt buộc.";
             valid = false;
         }
 
         if (!newPaymentAmount.trim() || isNaN(newPaymentAmount)) {
-            newErrors.paymentAmount = "Valid payment amount is required.";
+            newErrors.paymentAmount = "Số tiền thanh toán hợp lệ là bắt buộc.";
             valid = false;
         }
 
         if (!newDateVisited.trim()) {
-            newErrors.dateVisited = "Date visited is required.";
+            newErrors.dateVisited = "Ngày thăm là bắt buộc.";
             valid = false;
         }
 
@@ -117,7 +117,7 @@ function CustomerComponent() {
             setNewDateVisited("");
             setErrors({ name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" });
         } catch (err) {
-            console.error("Error updating customer: ", err);
+            console.error("Lỗi khi cập nhật khách hàng: ", err);
         }
     };
 
@@ -128,7 +128,7 @@ function CustomerComponent() {
             const userId = user.uid;
             const docRef = await addDoc(collection(db, "customers"), {
                 name: newName,
-                image: newImage || "https://via.placeholder.com/50", // Use placeholder if no image provided
+                image: newImage || "https://via.placeholder.com/50", // Sử dụng ảnh placeholder nếu không có ảnh
                 type: newType,
                 phoneNumber: newPhoneNumber,
                 paymentAmount: newPaymentAmount,
@@ -153,20 +153,20 @@ function CustomerComponent() {
             setNewDateVisited("");
             setErrors({ name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" });
         } catch (err) {
-            console.error("Error adding customer: ", err);
+            console.error("Lỗi khi thêm khách hàng: ", err);
         }
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setNewImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+    // const handleImageChange = (e) => {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+    //         reader.onloadend = () => {
+    //             setNewImage(reader.result);
+    //         };
+    //         reader.readAsDataURL(file);
+    //     }
+    // };
 
     const filteredCustomers = filterDate === "All" ? customers : customers.filter(customer => customer.dateVisited === filterDate);
 
@@ -180,13 +180,13 @@ function CustomerComponent() {
 
     return (
         <div className="container">
-            <h2 className="my-4">Customer List</h2>
+            <h2 className="my-4">Danh Sách Khách Hàng</h2>
 
             <div className="mb-4">
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter customer name"
+                    placeholder="Nhập tên khách hàng"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                 />
@@ -194,7 +194,7 @@ function CustomerComponent() {
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter phone number"
+                    placeholder="Nhập số điện thoại"
                     value={newPhoneNumber}
                     onChange={(e) => setNewPhoneNumber(e.target.value)}
                 />
@@ -202,7 +202,7 @@ function CustomerComponent() {
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter payment amount"
+                    placeholder="Nhập số tiền thanh toán"
                     value={newPaymentAmount}
                     onChange={(e) => setNewPaymentAmount(e.target.value)}
                 />
@@ -219,38 +219,37 @@ function CustomerComponent() {
                     value={newType}
                     onChange={(e) => setNewType(e.target.value)}
                 >
-                    <option value="Regular">Regular</option>
+                    <option value="Regular">Thường</option>
                     <option value="Loyal">Loyal</option>
                     <option value="VIP">VIP</option>
                 </select>
                 <button className="btn btn-primary" onClick={editCustomer ? handleSave : handleAddCustomer}>
-                    {editCustomer ? "Save Changes" : "Add Customer"}
+                    {editCustomer ? "Lưu Thay Đổi" : "Thêm Khách Hàng"}
                 </button>
             </div>
 
             <div className="mb-4">
-                <label>Filter by date:</label>
+                <label>Chọn ngày để lọc:</label>
                 <select
                     className="form-control"
                     value={filterDate}
                     onChange={(e) => setFilterDate(e.target.value)}
                 >
-                    <option value="All">All</option>
+                    <option value="All">Tất cả</option>
                     <option value="2024-08-01">2024-08-01</option>
                     <option value="2024-08-02">2024-08-02</option>
-                    {/* Add more options as needed */}
                 </select>
             </div>
 
-            <h4>Total Payment by Phone Number:</h4>
+            <h4>Tổng Thanh Toán Theo Số Điện Thoại:</h4>
             <ul className="list-group mb-4">
                 {Object.entries(totalPaymentByPhoneNumber).map(([phoneNumber, totalPayment]) => (
                     <li key={phoneNumber} className="list-group-item d-flex justify-content-between align-items-center">
                         <div>
-                            Phone: {phoneNumber}
+                            Số điện thoại: {phoneNumber}
                         </div>
                         <div>
-                            Total Payment: ${totalPayment.toFixed(2)}
+                            Tổng thanh toán: ${totalPayment.toFixed(2)}
                         </div>
                     </li>
                 ))}
@@ -260,18 +259,18 @@ function CustomerComponent() {
                 {filteredCustomers.map((customer) => (
                     <li key={customer.id} className="list-group-item d-flex justify-content-between align-items-center">
                         <div>
-                            <div>Name: {customer.name}</div>
-                            <div>Phone: {customer.phoneNumber}</div>
-                            <div>Payment: ${customer.paymentAmount}</div>
-                            <div>Date Visited: {customer.dateVisited}</div>
+                            <div>Tên: {customer.name}</div>
+                            <div>Số điện thoại: {customer.phoneNumber}</div>
+                            <div>Số tiền: ${customer.paymentAmount}</div>
+                            <div>Ngày thăm: {customer.dateVisited}</div>
                         </div>
                         <div>
                             {editCustomer && editCustomer.id === customer.id ? (
-                                <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Save</button>
+                                <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Lưu</button>
                             ) : (
-                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(customer)}>Edit</button>
+                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(customer)}>Sửa</button>
                             )}
-                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(customer.id)}>Delete</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(customer.id)}>Xóa</button>
                         </div>
                     </li>
                 ))}
