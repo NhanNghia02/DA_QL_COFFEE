@@ -76,7 +76,7 @@ function RegisterComponent() {
 
             setSuccessMessage("Đăng ký thành công!!!");
             setTimeout(() => {
-                navigate("/admin/logins");
+                navigate("/client/login");
             }, 2000);
         } catch (error) {
             if (error.code === 'auth/email-already-in-use') {

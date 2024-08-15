@@ -115,7 +115,7 @@ function EmployeeComponent() {
             const docRef = await addDoc(collection(db, "employees"), {
                 name: newName,
                 role: newRole,
-                image: newImage || "https://via.placeholder.com/50", 
+                image: newImage || "https://via.placeholder.com/50",
                 userId: userId
             });
             const newEmployee = {
@@ -154,9 +154,9 @@ function EmployeeComponent() {
             <h2 className="my-1">Danh Sách Nhân Viên</h2>
 
             {user && (
-                <div className="mb-4">
+                <div className="mb-4 border border-primary p-4">
                     <h4>Thông Tin Tài Khoản</h4>
-                    <p>Email: {user.email}</p>
+                    <p className="mt-3">Email: {user.email}</p>
                     <p>UID: {user.uid}</p>
                 </div>
             )}
@@ -186,7 +186,8 @@ function EmployeeComponent() {
                 />
                 {imagePreview && <img src={imagePreview} alt="Xem trước" className="img-thumbnail mb-2" style={{ width: 100, height: 100 }} />}
                 {errors.image && <div className="text-danger">{errors.image}</div>}
-                <button className="btn btn-primary" onClick={editEmployee ? handleSave : handleAddEmployee}>
+                <br />
+                <button className="btn btn-primary mt-3" onClick={editEmployee ? handleSave : handleAddEmployee}>
                     {editEmployee ? "Lưu thay đổi" : "Thêm nhân viên"}
                 </button>
             </div>

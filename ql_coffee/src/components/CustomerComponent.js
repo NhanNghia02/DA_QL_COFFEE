@@ -262,10 +262,10 @@ function CustomerComponent() {
             </table>
 
             <div className="mt-4">
-                <h4>Tổng tiền theo số điện thoại:</h4>
+                <h4>Khách Hàng</h4>
                 <ul>
                     {Object.entries(totalPaymentByPhoneNumber).map(([phoneNumber, total]) => (
-                        <li key={phoneNumber}>Số điện thoại {phoneNumber}: {total}</li>
+                        <li key={phoneNumber}>Khách Hàng Có SĐT - <strong>{phoneNumber}</strong> - Đã Chi Tiêu - <strong>{total}</strong> VNĐ</li>
                     ))}
                 </ul>
             </div>
