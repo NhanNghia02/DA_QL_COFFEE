@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../Firebase-config';
+import { auth } from '../model/Firebase-config';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { setUserInLocalStorage } from '../model/AuthModel';
 import './css/Topbar.css';
 
 const Topbar = () => {
@@ -13,18 +14,23 @@ const Topbar = () => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUser(user);
+                setUserInLocalStorage(user);
             } else {
                 setUser(null);
+                setUserInLocalStorage(null);
             }
         });
 
         return () => unsubscribe();
     }, []);
 
-    const handleLogout = async () => {
+    const handleLogout = async (event) => {
+        event.preventDefault();
+
         try {
             await signOut(auth);
-            navigate('/admin/logins');
+            setUserInLocalStorage(null);
+            navigate('/admin/login');
         } catch (error) {
             console.error('Lỗi đăng xuất:', error.message);
         }
@@ -69,14 +75,14 @@ const Topbar = () => {
                 <li className="nav-item dropdown no-arrow">
                     <a
                         className="nav-link dropdown-toggle"
-                        href="/"
+                        href="#!"
                         id="userDropdown"
                         role="button"
                         data-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                     >
-                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">{user ? user.displayName || user.name : "Đăng Nhập"}</span>
+                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">{user ? user.displayName || user.email : "Đăng Nhập"}</span>
                         <i className="fa-solid fa-user"></i>
                     </a>
                     <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -84,11 +90,7 @@ const Topbar = () => {
                             <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             Hồ sơ
                         </Link>
-                        <Link className="dropdown-item" to="/admin/logins">
-                            <i className="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Đăng Nhập
-                        </Link>
-                        <a className="dropdown-item" href="/admin/logins" onClick={handleLogout}>
+                        <a className="dropdown-item" href="#!" onClick={handleLogout}>
                             <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             Đăng xuất
                         </a>

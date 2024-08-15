@@ -37,16 +37,19 @@ function EmployeeComponent() {
             const employeeList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setEmployees(employeeList);
         } catch (err) {
-            console.error("Error fetching employees: ", err);
+            console.error("Lỗi khi lấy danh sách nhân viên: ", err);
         }
     };
 
     const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa tài khoản nhân viên này không?");
+        if (!confirmDelete) return;
+
         try {
             await deleteDoc(doc(db, "employees", id));
             setEmployees(employees.filter(employee => employee.id !== id));
         } catch (err) {
-            console.error("Error deleting employee: ", err);
+            console.error("Lỗi khi xóa nhân viên: ", err);
         }
     };
 
@@ -63,17 +66,17 @@ function EmployeeComponent() {
         const newErrors = { name: "", role: "", image: "" };
 
         if (!newName.trim()) {
-            newErrors.name = "Name is required.";
+            newErrors.name = "Tên không được để trống.";
             valid = false;
         }
 
         if (!newRole.trim()) {
-            newErrors.role = "Role is required.";
+            newErrors.role = "Vai trò không được để trống.";
             valid = false;
         }
 
         if (!newImage && !editEmployee) {
-            newErrors.image = "Image is required.";
+            newErrors.image = "Hình ảnh không được để trống.";
             valid = false;
         }
 
@@ -100,7 +103,7 @@ function EmployeeComponent() {
             setImagePreview("");
             setErrors({ name: "", role: "", image: "" });
         } catch (err) {
-            console.error("Error updating employee: ", err);
+            console.error("Lỗi khi cập nhật nhân viên: ", err);
         }
     };
 
@@ -113,7 +116,7 @@ function EmployeeComponent() {
                 name: newName,
                 role: newRole,
                 image: newImage || "https://via.placeholder.com/50", 
-                userId: userId // Save userId to link employee with user
+                userId: userId
             });
             const newEmployee = {
                 id: docRef.id,
@@ -128,7 +131,7 @@ function EmployeeComponent() {
             setImagePreview("");
             setErrors({ name: "", role: "", image: "" });
         } catch (err) {
-            console.error("Error adding employee: ", err);
+            console.error("Lỗi khi thêm nhân viên: ", err);
         }
     };
 
@@ -148,13 +151,21 @@ function EmployeeComponent() {
 
     return (
         <div className="container">
-            <h2 className="my-4">Danh Sách Nhân Viên</h2>
+            <h2 className="my-1">Danh Sách Nhân Viên</h2>
+
+            {user && (
+                <div className="mb-4">
+                    <h4>Thông Tin Tài Khoản</h4>
+                    <p>Email: {user.email}</p>
+                    <p>UID: {user.uid}</p>
+                </div>
+            )}
 
             <div className="mb-4">
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter employee name"
+                    placeholder="Nhập tên nhân viên"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                 />
@@ -165,7 +176,7 @@ function EmployeeComponent() {
                     onChange={(e) => setNewRole(e.target.value)}
                 >
                     <option value="Admin">Admin</option>
-                    <option value="Staff">Staff</option>
+                    <option value="Staff">Nhân viên</option>
                 </select>
                 {errors.role && <div className="text-danger">{errors.role}</div>}
                 <input
@@ -173,23 +184,23 @@ function EmployeeComponent() {
                     className="form-control-file mb-2"
                     onChange={handleImageChange}
                 />
-                {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mb-2" style={{ width: 100, height: 100 }} />}
+                {imagePreview && <img src={imagePreview} alt="Xem trước" className="img-thumbnail mb-2" style={{ width: 100, height: 100 }} />}
                 {errors.image && <div className="text-danger">{errors.image}</div>}
                 <button className="btn btn-primary" onClick={editEmployee ? handleSave : handleAddEmployee}>
-                    {editEmployee ? "Save Changes" : "Add Employee"}
+                    {editEmployee ? "Lưu thay đổi" : "Thêm nhân viên"}
                 </button>
             </div>
 
             <div className="mb-4">
-                <label>Filter by role:</label>
+                <label>Lọc theo vai trò:</label>
                 <select
                     className="form-control"
                     value={filterRole}
                     onChange={(e) => setFilterRole(e.target.value)}
                 >
-                    <option value="All">All</option>
+                    <option value="All">Tất cả</option>
                     <option value="Admin">Admin</option>
-                    <option value="Staff">Staff</option>
+                    <option value="Staff">Nhân viên</option>
                 </select>
             </div>
 
@@ -213,7 +224,7 @@ function EmployeeComponent() {
                                         onChange={(e) => setNewRole(e.target.value)}
                                     >
                                         <option value="Admin">Admin</option>
-                                        <option value="Staff">Staff</option>
+                                        <option value="Staff">Nhân viên</option>
                                     </select>
                                     {errors.role && <div className="text-danger">{errors.role}</div>}
                                     <input
@@ -234,11 +245,11 @@ function EmployeeComponent() {
                         </div>
                         <div>
                             {editEmployee && editEmployee.id === employee.id ? (
-                                <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Save</button>
+                                <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Lưu</button>
                             ) : (
-                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(employee)}>Edit</button>
+                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(employee)}>Sửa</button>
                             )}
-                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(employee.id)}>Delete</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(employee.id)}>Xóa</button>
                         </div>
                     </li>
                 ))}

@@ -31,7 +31,7 @@ function CustomerComponent() {
         });
 
         return () => unsubscribe();
-    }, []);
+    });
 
     const fetchCustomers = async (userId) => {
         try {
@@ -64,31 +64,34 @@ function CustomerComponent() {
     };
 
     const validateForm = () => {
-        let valid = true;
-        const newErrors = { name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" };
+        let hợpLệ = true;
+        const lỗiMới = { name: "", phoneNumber: "", paymentAmount: "", dateVisited: "" };
 
         if (!newName.trim()) {
-            newErrors.name = "Name is required.";
-            valid = false;
+            lỗiMới.name = "Tên khách hàng là bắt buộc.";
+            hợpLệ = false;
         }
 
         if (!newPhoneNumber.trim()) {
-            newErrors.phoneNumber = "Phone number is required.";
-            valid = false;
+            lỗiMới.phoneNumber = "Số điện thoại là bắt buộc.";
+            hợpLệ = false;
+        } else if (customers.some(customer => customer.phoneNumber === newPhoneNumber && (!editCustomer || customer.id !== editCustomer.id))) {
+            lỗiMới.phoneNumber = "Số điện thoại này đã tồn tại.";
+            hợpLệ = false;
         }
 
         if (!newPaymentAmount.trim() || isNaN(newPaymentAmount)) {
-            newErrors.paymentAmount = "Valid payment amount is required.";
-            valid = false;
+            lỗiMới.paymentAmount = "Số tiền thanh toán hợp lệ là bắt buộc.";
+            hợpLệ = false;
         }
 
         if (!newDateVisited.trim()) {
-            newErrors.dateVisited = "Date visited is required.";
-            valid = false;
+            lỗiMới.dateVisited = "Ngày ghé thăm là bắt buộc.";
+            hợpLệ = false;
         }
 
-        setErrors(newErrors);
-        return valid;
+        setErrors(lỗiMới);
+        return hợpLệ;
     };
 
     const handleSave = async () => {
@@ -128,7 +131,6 @@ function CustomerComponent() {
             const userId = user.uid;
             const docRef = await addDoc(collection(db, "customers"), {
                 name: newName,
-                image: newImage || "https://via.placeholder.com/50", // Use placeholder if no image provided
                 type: newType,
                 phoneNumber: newPhoneNumber,
                 paymentAmount: newPaymentAmount,
@@ -157,17 +159,6 @@ function CustomerComponent() {
         }
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setNewImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     const filteredCustomers = filterDate === "All" ? customers : customers.filter(customer => customer.dateVisited === filterDate);
 
     const totalPaymentByPhoneNumber = filteredCustomers.reduce((acc, customer) => {
@@ -180,13 +171,12 @@ function CustomerComponent() {
 
     return (
         <div className="container">
-            <h2 className="my-4">Customer List</h2>
-
+            <h2 className="my-1">Danh sách khách hàng</h2>
             <div className="mb-4">
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter customer name"
+                    placeholder="Nhập tên khách hàng"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                 />
@@ -194,7 +184,7 @@ function CustomerComponent() {
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter phone number"
+                    placeholder="Nhập số điện thoại"
                     value={newPhoneNumber}
                     onChange={(e) => setNewPhoneNumber(e.target.value)}
                 />
@@ -202,7 +192,7 @@ function CustomerComponent() {
                 <input
                     type="text"
                     className="form-control mb-2"
-                    placeholder="Enter payment amount"
+                    placeholder="Nhập số tiền thanh toán"
                     value={newPaymentAmount}
                     onChange={(e) => setNewPaymentAmount(e.target.value)}
                 />
@@ -219,63 +209,66 @@ function CustomerComponent() {
                     value={newType}
                     onChange={(e) => setNewType(e.target.value)}
                 >
-                    <option value="Regular">Regular</option>
+                    <option value="Regular">Thường</option>
                     <option value="Loyal">Loyal</option>
                     <option value="VIP">VIP</option>
                 </select>
-                <button className="btn btn-primary" onClick={editCustomer ? handleSave : handleAddCustomer}>
-                    {editCustomer ? "Save Changes" : "Add Customer"}
+                <button className="btn btn-primary mt-3" onClick={editCustomer ? handleSave : handleAddCustomer}>
+                    {editCustomer ? "Lưu thay đổi" : "Thêm khách hàng"}
                 </button>
             </div>
 
             <div className="mb-4">
-                <label>Filter by date:</label>
+                <label>Lọc theo ngày:</label>
                 <select
                     className="form-control"
                     value={filterDate}
                     onChange={(e) => setFilterDate(e.target.value)}
                 >
-                    <option value="All">All</option>
+                    <option value="All">Tất cả</option>
                     <option value="2024-08-01">2024-08-01</option>
                     <option value="2024-08-02">2024-08-02</option>
-                    {/* Add more options as needed */}
                 </select>
             </div>
 
-            <h4>Total Payment by Phone Number:</h4>
-            <ul className="list-group mb-4">
-                {Object.entries(totalPaymentByPhoneNumber).map(([phoneNumber, totalPayment]) => (
-                    <li key={phoneNumber} className="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            Phone: {phoneNumber}
-                        </div>
-                        <div>
-                            Total Payment: ${totalPayment.toFixed(2)}
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            <table className="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Hình ảnh</th>
+                        <th>Tên khách hàng</th>
+                        <th>Loại khách hàng</th>
+                        <th>Số điện thoại</th>
+                        <th>Số tiền thanh toán</th>
+                        <th>Ngày ghé thăm</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredCustomers.map(customer => (
+                        <tr key={customer.id}>
+                            <td><img src={customer.image || "https://via.placeholder.com/50"} alt="Customer" style={{ width: "50px" }} /></td>
+                            <td>{customer.name}</td>
+                            <td>{customer.type}</td>
+                            <td>{customer.phoneNumber}</td>
+                            <td>{customer.paymentAmount}</td>
+                            <td>{customer.dateVisited}</td>
+                            <td>
+                                <button className="btn btn-warning mr-2" onClick={() => handleEdit(customer)}>Sửa</button>
+                                <button className="btn btn-danger" onClick={() => handleDelete(customer.id)}>Xóa</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
 
-            <ul className="list-group">
-                {filteredCustomers.map((customer) => (
-                    <li key={customer.id} className="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div>Name: {customer.name}</div>
-                            <div>Phone: {customer.phoneNumber}</div>
-                            <div>Payment: ${customer.paymentAmount}</div>
-                            <div>Date Visited: {customer.dateVisited}</div>
-                        </div>
-                        <div>
-                            {editCustomer && editCustomer.id === customer.id ? (
-                                <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Save</button>
-                            ) : (
-                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(customer)}>Edit</button>
-                            )}
-                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(customer.id)}>Delete</button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            <div className="mt-4">
+                <h4>Tổng tiền theo số điện thoại:</h4>
+                <ul>
+                    {Object.entries(totalPaymentByPhoneNumber).map(([phoneNumber, total]) => (
+                        <li key={phoneNumber}>Số điện thoại {phoneNumber}: {total}</li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }

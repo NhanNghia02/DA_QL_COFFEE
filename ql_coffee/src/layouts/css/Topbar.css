@@ -8,3 +8,14 @@
   padding: 0.5em 0.5em;
   font-size: 0.75em;
 }
+.nav-link.active {
+  background-color: #4e73df;
+  color: #ffffff;
+}
+.nav-link.active i {
+  color: #ffffff;
+}
+.nav-link:hover {
+  color: #ffffff; 
+}
+
