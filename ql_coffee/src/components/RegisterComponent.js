@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../Firebase-config";
+import { auth } from "../model/Firebase-config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 function RegisterComponent() {

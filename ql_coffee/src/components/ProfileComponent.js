@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../Firebase-config';
+import { storage } from '../model/Firebase-config';
 
 function ProfileComponent() {
     const [user, setUser] = useState(null);

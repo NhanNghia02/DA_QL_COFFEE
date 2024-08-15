@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import '../layouts/css/LoginAdmin.css';
 import { useNavigate } from "react-router-dom";
 import { auth } from "../model/Firebase-config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
-function LoginComponent() {
+function LoginAdminComponent() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
@@ -27,7 +28,7 @@ function LoginComponent() {
 
         if (!email) {
             formErrors.email = "Email không được để trống";
-        } else if (!email.includes("@")) {
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
             formErrors.email = "Email không hợp lệ";
         }
         if (!password) {
@@ -44,68 +45,58 @@ function LoginComponent() {
             await signInWithEmailAndPassword(auth, email, password);
             navigate("/admin/dashboard");
         } catch (error) {
-            if (error.code === 'auth/user-not-found') {
-                setErrors({ general: "Tài khoản không tồn tại" });
-            } else if (error.code === 'auth/wrong-password') {
-                setErrors({ general: "Mật khẩu không đúng" });
-            } else {
-                setErrors({ general: "Đăng nhập không thành công" });
+            let errorMessage = "Lỗi. Vui lòng thử lại sau !!!";
+
+            if (error.code === 'auth/invalid-credential') {
+                errorMessage = "Sai email hoặc mật khẩu. Vui lòng kiểm tra lại !!!";
             }
+
+            setErrors(prevErrors => ({ ...prevErrors, general: errorMessage }));
+
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center vh-100">
+        <div className="container d-flex justify-content-center align-items-center min-vh-100">
             <div className="login-container">
-                <h2 className="text-center">Đăng Nhập</h2>
+                <h2 className="text-center mb-4">Đăng Nhập Admin</h2>
+
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
+                    <div className="form-group mb-3">
                         <input
                             type="email"
                             className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                             id="email"
-                            placeholder="Nhập địa chỉ email"
+                            placeholder="Nhập địa chỉ email..."
                             value={email}
                             onChange={handleChange}
                         />
                         {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                     </div>
-                    <div className="form-group">
+
+                    <div className="form-group mb-3">
                         <input
                             type="password"
                             className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                             id="password"
-                            placeholder="Nhập mật khẩu"
+                            placeholder="Nhập mật khẩu..."
                             value={password}
                             onChange={handleChange}
                         />
                         {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                     </div>
-                    {errors.general && <div className="invalid-feedback">{errors.general}</div>}
-                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+
+                    {errors.general && <div className="invalid-feedback general-error mb-3 mt-2">{errors.general}</div>}
+
+                    <button type="submit" className="btn btn-primary w-100 mt-3" disabled={isSubmitting}>
                         {isSubmitting ? "Đang đăng nhập..." : "Đăng Nhập"}
                     </button>
-                    <div className="d-flex justify-content-between mt-3">
-                        <a href="/admin/reset" className="text-primary">Quên mật khẩu?</a>
-                        <a href="/admin/registers" className="text-primary">Đăng Ký</a>
-                    </div>
                 </form>
-                <p className="text-center mt-4">Hoặc tiếp tục với</p>
-                <div className="social-buttons">
-                    <a href="/" className="btn btn-google btn-danger mx-2">
-                        <i className="fab fa-google"></i>
-                        <span className="ml-2">Đăng Nhập Với Google</span>
-                    </a>
-                    <a href="/" className="btn btn-facebook btn-primary">
-                        <i className="fab fa-facebook-f"></i>
-                        <span className="ml-2">Đăng Nhập Với Facebook</span>
-                    </a>
-                </div>
             </div>
         </div>
     );
 }
 
-export default LoginComponent;
+export default LoginAdminComponent;

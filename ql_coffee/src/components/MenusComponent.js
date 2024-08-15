@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { db, storage } from "../Firebase-config";
+import { db, storage } from "../model/Firebase-config";
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import ConfinModal from "../ConfinModel";
+import ConfinModal from "../model/ConfinModel";
 
 function MenusComponent() {
     const [drinks, setDrinks] = useState([]);
@@ -46,7 +46,7 @@ function MenusComponent() {
             const maxProductId = drinksArray.reduce((maxId, drink) => Math.max(maxId, drink.productId), 0);
             return maxProductId;
         } catch (err) {
-            console.error("Error fetching max product ID: ", err);
+            console.error("Error: ", err);
             return 0;
         }
     };
@@ -123,6 +123,24 @@ function MenusComponent() {
         }
     };
 
+    const updateId = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "drinks"));
+            const drinksArray = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            drinksArray.sort((a, b) => a.productId - b.productId);
+            for (let i = 0; i < drinksArray.length; i++) {
+                const drink = drinksArray[i];
+                const newProductId = i + 1;
+                if (drink.productId !== newProductId) {
+                    await updateDoc(doc(db, "drinks", drink.id), { productId: newProductId });
+                }
+            }
+        } catch (err) {
+            console.error("Lỗi: ", err);
+        }
+    };
+
     const handleDelete = (drink) => {
         setDrinkToDelete(drink);
         setShowConfirm(true);
@@ -132,6 +150,7 @@ function MenusComponent() {
         if (drinkToDelete) {
             try {
                 await deleteDoc(doc(db, "drinks", drinkToDelete.id));
+                await updateId();
                 await fetchDrinks();
             } catch (err) {
                 console.error("Lỗi: ", err);
@@ -184,7 +203,7 @@ function MenusComponent() {
                     resetForm();
                     setShowForm(true);
                 }}>
-                    Thêm Thức Uống
+                    Thêm Món
                 </button>
             </div>
             {loading ? (
@@ -257,12 +276,12 @@ function MenusComponent() {
                             {drinks.map((drink) => (
                                 <tr key={drink.id}>
                                     <td>{drink.productId}</td>
-                                    <td>{drink.name}</td>
+                                    <td><strong>{drink.name}</strong></td>
                                     <td>{formatPrice(drink.price)}</td>
                                     <td>{drink.discountCode || "Không có mã giảm giá"}</td>
                                     <td>{drink.image && <img src={drink.image} alt={drink.name} className="img-thumbnail" style={{ width: 40, height: 40 }} />}</td>
-                                    <td><button className="btn btn-warning btn-sm mr-2 " onClick={() => handleEdit(drink)}><i className="fa fa-edit"></i> Sửa</button></td>
-                                    <td><button className="btn btn-danger btn-sm" onClick={() => handleDelete(drink)}><i className="fa fa-close"></i> Xóa</button></td>
+                                    <td><button className="btn btn-warning btn-sm mr-2 " onClick={() => handleEdit(drink)}><i className="fa fa-edit"></i> Sửa Món</button></td>
+                                    <td><button className="btn btn-danger btn-sm" onClick={() => handleDelete(drink)}><i className="fa fa-close"></i> Xóa Món</button></td>
                                 </tr>
                             ))}
                         </tbody>
@@ -273,7 +292,7 @@ function MenusComponent() {
                 show={showConfirm} 
                 onConfirm={confirmDelete} 
                 onCancel={() => setShowConfirm(false)} 
-                message="Bạn có chắc chắn muốn xóa?" 
+                message="Bạn có chắc muốn xóa món này không?" 
             />
         </div>
     );

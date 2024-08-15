@@ -10,10 +10,10 @@ function EmployeeComponent() {
     const [employees, setEmployees] = useState([]);
     const [editEmployee, setEditEmployee] = useState(null);
     const [newName, setNewName] = useState("");
-    const [newRole, setNewRole] = useState("Nhân viên");
+    const [newRole, setNewRole] = useState("Staff");
     const [newImage, setNewImage] = useState("");
     const [errors, setErrors] = useState({ name: "", role: "", image: "" });
-    const [filterRole, setFilterRole] = useState("Tất cả");
+    const [filterRole, setFilterRole] = useState("All");
     const [imagePreview, setImagePreview] = useState("");
 
     useEffect(() => {
@@ -42,6 +42,9 @@ function EmployeeComponent() {
     };
 
     const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa tài khoản nhân viên này không?");
+        if (!confirmDelete) return;
+
         try {
             await deleteDoc(doc(db, "employees", id));
             setEmployees(employees.filter(employee => employee.id !== id));
@@ -63,17 +66,17 @@ function EmployeeComponent() {
         const newErrors = { name: "", role: "", image: "" };
 
         if (!newName.trim()) {
-            newErrors.name = "Tên là bắt buộc.";
+            newErrors.name = "Tên không được để trống.";
             valid = false;
         }
 
         if (!newRole.trim()) {
-            newErrors.role = "Vai trò là bắt buộc.";
+            newErrors.role = "Vai trò không được để trống.";
             valid = false;
         }
 
         if (!newImage && !editEmployee) {
-            newErrors.image = "Ảnh là bắt buộc.";
+            newErrors.image = "Hình ảnh không được để trống.";
             valid = false;
         }
 
@@ -95,7 +98,7 @@ function EmployeeComponent() {
             ));
             setEditEmployee(null);
             setNewName("");
-            setNewRole("Nhân viên");
+            setNewRole("Staff");
             setNewImage("");
             setImagePreview("");
             setErrors({ name: "", role: "", image: "" });
@@ -112,7 +115,7 @@ function EmployeeComponent() {
             const docRef = await addDoc(collection(db, "employees"), {
                 name: newName,
                 role: newRole,
-                image: newImage || "https://via.placeholder.com/50",
+                image: newImage || "https://via.placeholder.com/50", 
                 userId: userId
             });
             const newEmployee = {
@@ -123,7 +126,7 @@ function EmployeeComponent() {
             };
             setEmployees([...employees, newEmployee]);
             setNewName("");
-            setNewRole("Nhân viên");
+            setNewRole("Staff");
             setNewImage("");
             setImagePreview("");
             setErrors({ name: "", role: "", image: "" });
@@ -144,11 +147,19 @@ function EmployeeComponent() {
         }
     };
 
-    const filteredEmployees = filterRole === "Tất cả" ? employees : employees.filter(employee => employee.role === filterRole);
+    const filteredEmployees = filterRole === "All" ? employees : employees.filter(employee => employee.role === filterRole);
 
     return (
         <div className="container">
-            <h2 className="my-4">Danh Sách Nhân Viên</h2>
+            <h2 className="my-1">Danh Sách Nhân Viên</h2>
+
+            {user && (
+                <div className="mb-4">
+                    <h4>Thông Tin Tài Khoản</h4>
+                    <p>Email: {user.email}</p>
+                    <p>UID: {user.uid}</p>
+                </div>
+            )}
 
             <div className="mb-4">
                 <input
@@ -164,8 +175,8 @@ function EmployeeComponent() {
                     value={newRole}
                     onChange={(e) => setNewRole(e.target.value)}
                 >
-                    <option value="Admin">Quản trị viên</option>
-                    <option value="Nhân viên">Nhân viên</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Staff">Nhân viên</option>
                 </select>
                 {errors.role && <div className="text-danger">{errors.role}</div>}
                 <input
@@ -176,7 +187,7 @@ function EmployeeComponent() {
                 {imagePreview && <img src={imagePreview} alt="Xem trước" className="img-thumbnail mb-2" style={{ width: 100, height: 100 }} />}
                 {errors.image && <div className="text-danger">{errors.image}</div>}
                 <button className="btn btn-primary" onClick={editEmployee ? handleSave : handleAddEmployee}>
-                    {editEmployee ? "Lưu Thay Đổi" : "Thêm Nhân Viên"}
+                    {editEmployee ? "Lưu thay đổi" : "Thêm nhân viên"}
                 </button>
             </div>
 
@@ -187,9 +198,9 @@ function EmployeeComponent() {
                     value={filterRole}
                     onChange={(e) => setFilterRole(e.target.value)}
                 >
-                    <option value="Tất cả">Tất cả</option>
-                    <option value="Admin">Quản trị viên</option>
-                    <option value="Nhân viên">Nhân viên</option>
+                    <option value="All">Tất cả</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Staff">Nhân viên</option>
                 </select>
             </div>
 
@@ -212,8 +223,8 @@ function EmployeeComponent() {
                                         value={newRole}
                                         onChange={(e) => setNewRole(e.target.value)}
                                     >
-                                        <option value="Admin">Quản trị viên</option>
-                                        <option value="Nhân viên">Nhân viên</option>
+                                        <option value="Admin">Admin</option>
+                                        <option value="Staff">Nhân viên</option>
                                     </select>
                                     {errors.role && <div className="text-danger">{errors.role}</div>}
                                     <input
@@ -236,9 +247,9 @@ function EmployeeComponent() {
                             {editEmployee && editEmployee.id === employee.id ? (
                                 <button className="btn btn-success btn-sm mr-2" onClick={handleSave}>Lưu</button>
                             ) : (
-                                <button className="btn btn-primary mx-2" onClick={() => handleEdit(employee)}>Sửa</button>
+                                <button className="btn btn-primary btn-sm mr-2" onClick={() => handleEdit(employee)}>Sửa</button>
                             )}
-                            <button className="btn btn-danger" onClick={() => handleDelete(employee.id)}>Xóa</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(employee.id)}>Xóa</button>
                         </div>
                     </li>
                 ))}

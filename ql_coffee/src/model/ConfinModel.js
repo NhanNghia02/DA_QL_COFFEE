@@ -1,4 +1,3 @@
-// ConfirmationModal.js
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
@@ -13,7 +12,7 @@ const ConfinModal = ({ show, onConfirm, onCancel, message }) => {
                 <Button variant="secondary" onClick={onCancel}>
                     Hủy
                 </Button>
-                <Button variant="primary" onClick={onConfirm}>
+                <Button variant="danger" onClick={onConfirm}>
                     Xác Nhận
                 </Button>
             </Modal.Footer>
