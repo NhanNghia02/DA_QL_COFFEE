@@ -12,11 +12,11 @@ import CommentComponent from './components/CommentComponent';
 import OrderComponent from './components/OrderComponent';
 import OrderDetailComponent from './components/OrderDetailComponent';
 import OrderTableComponent from './components/OrderTableComponent';
-import LoginComponent from './components/LoginComponent';
-import RegisterComponent from './components/RegisterComponent';
 import ProfileComponent from './components/ProfileComponent';
 import MenusComponent from './components/MenusComponent';
 import LoginAdminComponent from './components/LoginAdminComponent';
+// import LoginComponent from './components/LoginComponent';
+// import RegisterComponent from './components/RegisterComponent';
 import AccountComponents from './components/AccountsComponent';
 
 function ProtectedRoute({ element }) {
@@ -30,8 +30,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/admin/login" element={<LoginAdminComponent />} />
-          <Route path="/client/login" element={<LoginComponent />} />
-          <Route path="/client/registers" element={<RegisterComponent />} />
+          {/* <Route path="/client/login" element={<LoginComponent />} />
+          <Route path="/client/registers" element={<RegisterComponent />} /> */}
 
           <Route
             path="*"

@@ -5,6 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 
 function HomeComponent() {
     const [totalTables, setTotalTables] = useState(0);
+    const [totalDrinks, setTotalDrinks] = useState(0);
     const [totalOrders, setTotalOrders] = useState(0);
     const [totalCustomers, setTotalCustomers] = useState(0);
     const [totalEmployees, setTotalEmployees] = useState(0);
@@ -17,6 +18,12 @@ function HomeComponent() {
                 const tablesData = await getDocs(tablesCollectionRef);
                 const tablesArray = tablesData.docs.map(doc => ({ ...doc.data(), id: doc.id }));
                 setTotalTables(tablesArray.length);
+
+                // Hiển thị số lượng thực đơn
+                const drinksCollectionRef = collection(db, 'drinks');
+                const drinksData = await getDocs(drinksCollectionRef);
+                const drinksArray = drinksData.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                setTotalDrinks(drinksArray.length);
 
                 // Hiển thị số lượng đơn hàng
                 const ordersCollectionRef = collection(db, 'orders');
@@ -35,7 +42,7 @@ function HomeComponent() {
                 const employeesData = await getDocs(employeesCollectionRef);
                 const employeesArray = employeesData.docs.map(doc => ({ ...doc.data(), id: doc.id }));
                 setTotalEmployees(employeesArray.length);
-                
+
             } catch (error) {
                 console.error("Lỗi: ", error);
             }
@@ -130,6 +137,29 @@ function HomeComponent() {
                                 </div>
                                 <div className="col-auto">
                                     <i className="fa-solid fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col-xl-6 col-md-6 mb-4">
+                    <div className="card border-left-primary shadow h-100 py-2">
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Tổng Số Lượng Món Nước
+                                    </div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">
+                                        <a href="/admin/drinks">
+                                            Tổng {totalDrinks} Món Nước
+                                        </a>
+                                    </div>
+                                </div>
+                                <div className="col-auto">
+                                    <i className="fa-solid fa-cocktail fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
