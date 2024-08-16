@@ -7,6 +7,7 @@ function HomeComponent() {
     const [totalTables, setTotalTables] = useState(0);
     const [totalDrinks, setTotalDrinks] = useState(0);
     const [totalOrders, setTotalOrders] = useState(0);
+    const [totalCategories, setTotalCategories] = useState(0);
     const [totalCustomers, setTotalCustomers] = useState(0);
     const [totalEmployees, setTotalEmployees] = useState(0);
 
@@ -24,6 +25,12 @@ function HomeComponent() {
                 const drinksData = await getDocs(drinksCollectionRef);
                 const drinksArray = drinksData.docs.map(doc => ({ ...doc.data(), id: doc.id }));
                 setTotalDrinks(drinksArray.length);
+
+                // Hiển thị số lượng danh mục
+                const categoriesCollectionRef = collection(db, 'categories');
+                const categoriesData = await getDocs(categoriesCollectionRef);
+                const cateArray = categoriesData.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                setTotalCategories(cateArray.length);
 
                 // Hiển thị số lượng đơn hàng
                 const ordersCollectionRef = collection(db, 'orders');
@@ -115,7 +122,7 @@ function HomeComponent() {
                                     </div>
                                 </div>
                                 <div className="col-auto">
-                                    <i className="fa-solid fa-user-group fa-2x text-gray-300"></i>
+                                    <i className="fa-solid fa-users fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
@@ -136,7 +143,7 @@ function HomeComponent() {
                                     </div>
                                 </div>
                                 <div className="col-auto">
-                                    <i className="fa-solid fa-users fa-2x text-gray-300"></i>
+                                    <i className="fa-solid  fa-user-group fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
@@ -149,7 +156,7 @@ function HomeComponent() {
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
-                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    <div className="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                         Tổng Số Lượng Món Nước
                                     </div>
                                     <div className="h5 mb-0 font-weight-bold text-gray-800">
@@ -160,6 +167,27 @@ function HomeComponent() {
                                 </div>
                                 <div className="col-auto">
                                     <i className="fa-solid fa-cocktail fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-xl-6 col-md-6 mb-4">
+                    <div className="card border-left-primary shadow h-100 py-2">
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-muted text-uppercase mb-1">
+                                        Tổng Số Lượng Danh Mục
+                                    </div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">
+                                        <a href="/admin/categories">
+                                            Tổng {totalCategories} Danh Mục
+                                        </a>
+                                    </div>
+                                </div>
+                                <div className="col-auto">
+                                    <i className="fa fa-folder fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>

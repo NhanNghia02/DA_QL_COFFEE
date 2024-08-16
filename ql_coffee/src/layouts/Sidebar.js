@@ -28,7 +28,16 @@ const Sidebar = () => {
               <span>Thống Kê</span>
             </Link>
           </li>
-          
+
+          <hr className="sidebar-divider d-none d-md-block" />
+
+          <li className="nav-item">
+            <Link className={`nav-link ${isActive('/admin/categories')}`} to="/admin/categories">
+              <i className="fa fa-folder"></i>
+              <span>Danh Mục</span>
+            </Link>
+          </li>
+
           <hr className="sidebar-divider d-none d-md-block" />
 
           <li className="nav-item">
@@ -75,20 +84,20 @@ const Sidebar = () => {
           </li>
 
           <hr className="sidebar-divider d-none d-md-block" />
-
+          
           <li className="nav-item">
-            <Link className={`nav-link ${isActive('/admin/accounts')}`} to="/admin/accounts">
-              <i className="fa-solid fa-user"></i>
-              <span>Tài Khoản</span>
+            <Link className={`nav-link ${isActive('/admin/revenues')}`} to="/admin/revenues">
+              <i className="fa fa-credit-card-alt"></i>
+              <span>Doanh Thu</span>
             </Link>
           </li>
 
           <hr className="sidebar-divider d-none d-md-block" />
 
           <li className="nav-item">
-            <Link className={`nav-link ${isActive('/admin/comments')}`} to="/admin/comments">
-              <i className="fas fa-comments"></i>
-              <span>Bình Luận</span>
+            <Link className={`nav-link ${isActive('/admin/accounts')}`} to="/admin/accounts">
+              <i className="fa-solid fa-user"></i>
+              <span>Tài Khoản</span>
             </Link>
           </li>
 

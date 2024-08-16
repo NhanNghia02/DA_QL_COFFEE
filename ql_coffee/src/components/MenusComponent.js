@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { db, storage } from "../model/Firebase-config";
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -20,24 +20,40 @@ function MenusComponent() {
     });
     const [showConfirm, setShowConfirm] = useState(false);
     const [drinkToDelete, setDrinkToDelete] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("Tất cả");
 
-    useEffect(() => {
-        fetchDrinks();
-    }, []);
+    const fetchCategories = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "categories"));
+            const categoriesList = querySnapshot.docs.map(doc => doc.data().name);
+            if (!categoriesList.includes("Coffee")) {
+                categoriesList.push("Coffee");
+            }
+            setCategories(["Tất cả", ...categoriesList]);
+        } catch (err) {
+            console.error("Lỗi: ", err);
+        }
+    };
 
-    const fetchDrinks = async () => {
+    const fetchDrinks = useCallback(async () => {
         setLoading(true);
         try {
             const querySnapshot = await getDocs(collection(db, "drinks"));
             const drinkList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             drinkList.sort((a, b) => a.productId - b.productId);
-            setDrinks(drinkList);
+            if (selectedCategory !== "Tất cả") {
+                const filteredDrinks = drinkList.filter(drink => drink.category === selectedCategory);
+                setDrinks(filteredDrinks);
+            } else {
+                setDrinks(drinkList);
+            }
         } catch (err) {
             console.error("Lỗi: ", err);
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedCategory]);
 
     const fetchMaxProductId = async () => {
         try {
@@ -51,6 +67,11 @@ function MenusComponent() {
         }
     };
 
+    useEffect(() => {
+        fetchCategories();
+        fetchDrinks();
+    }, [fetchDrinks]);
+
     const handleAddDrink = async () => {
         setErrorMessages({ name: "", price: "" });
 
@@ -61,7 +82,7 @@ function MenusComponent() {
             setErrorMessages(prev => ({ ...prev, price: "Giá không được để trống và phải là số" }));
         }
         if (!newName || !newPrice) return;
-        
+
         const maxProductId = await fetchMaxProductId();
         const productId = maxProductId + 1;
         let imageUrl = null;
@@ -78,7 +99,8 @@ function MenusComponent() {
                 name: newName,
                 price: parseFloat(newPrice),
                 discountCode: newDiscountCode || null,
-                image: imageUrl || null
+                image: imageUrl || null,
+                category: selectedCategory
             });
             fetchDrinks();
             resetForm();
@@ -113,7 +135,8 @@ function MenusComponent() {
                 name: newName,
                 price: parseFloat(newPrice),
                 discountCode: newDiscountCode || null,
-                image: imageUrl || null
+                image: imageUrl || null,
+                category: selectedCategory
             });
             fetchDrinks();
             resetForm();
@@ -166,6 +189,7 @@ function MenusComponent() {
         setPrice(drink.price);
         setDiscountCode(drink.discountCode || "");
         setImagePreview(drink.image || "");
+        setSelectedCategory(drink.category || "Tất cả");
         setShowForm(true);
     };
 
@@ -189,6 +213,7 @@ function MenusComponent() {
         setImage(null);
         setImagePreview("");
         setErrorMessages({ name: "", price: "" });
+        setSelectedCategory("Tất cả");
     };
 
     const formatPrice = (price) => {
@@ -206,94 +231,137 @@ function MenusComponent() {
                     Thêm Món
                 </button>
             </div>
+            <div className="mb-4">
+                <label className="label-control">Danh Mục</label>
+                <select
+                    className="form-control"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                    {categories.map(category => (
+                        <option key={category} value={category}>{category}</option>
+                    ))}
+                </select>
+            </div>
             {loading ? (
                 <p>Đang tải...</p>
             ) : (
                 <div className="mt-2">
                     {showForm && (
-                        <div className="mb-4">
-                            <label className="label-control">Tên Thực Đơn:</label>
-                            <input
-                                className="form-control"
-                                type="text"
-                                value={newName}
-                                placeholder="Nhập tên thực đơn..."
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                            {errorMessages.name && <div className="text-danger">{errorMessages.name}</div>}
-
-                            <label className="label-control">Giá Thực Đơn:</label>
-                            <input
-                                type="number"
-                                className="form-control mb-2"
-                                placeholder="Nhập giá thực đơn..."
-                                value={newPrice}
-                                onChange={(e) => setPrice(e.target.value)}
-                            />
-                            {errorMessages.price && <div className="text-danger">{errorMessages.price}</div>}
-
-                            <label className="label-control">Ảnh Thực Đơn:</label>
-                            <input
-                                type="file"
-                                className="form-control-file mb-2"
-                                onChange={handleImageChange}
-                            />
-                            {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mb-2" style={{ width: 100, height: 100 }} />}
-
-                            <br /><label className="label-control">Mã Giảm Giá (Nếu có):</label>
-                            <input
-                                type="text"
-                                className="form-control mb-2"
-                                placeholder="Nhập mã giảm giá nếu có..."
-                                value={newDiscountCode}
-                                onChange={(e) => setDiscountCode(e.target.value)}
-                            />
-                            <button className="btn btn-success mr-2 mt-3" onClick={editingDrink ? handleSave : handleAddDrink}>
-                                {editingDrink ? "Lưu" : "Thêm"}
-                            </button>
-                            <button className="btn btn-secondary mt-3" onClick={() => {
-                                resetForm();
-                                setShowForm(false);
-                            }}>
-                                Hủy
-                            </button>
+                        <div className="card mb-4">
+                            <div className="card-body">
+                                <form>
+                                    <div className="mb-3">
+                                        <label className="form-label">Tên Món</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={newName}
+                                            placeholder="Nhập tên món..."
+                                            onChange={(e) => setName(e.target.value)}
+                                        />
+                                        {errorMessages.name && <div className="text-danger">{errorMessages.name}</div>}
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Giá</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={newPrice}
+                                            placeholder="Nhập giá món..."
+                                            onChange={(e) => setPrice(e.target.value)}
+                                        />
+                                        {errorMessages.price && <div className="text-danger">{errorMessages.price}</div>}
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Mã Giảm Giá</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={newDiscountCode}
+                                            placeholder="Nhập mã giảm giá món (nếu có)..."
+                                            onChange={(e) => setDiscountCode(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Hình Ảnh</label>
+                                        <input
+                                            type="file"
+                                            className="form-control"
+                                            onChange={handleImageChange}
+                                        />
+                                        {imagePreview && (
+                                            <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" />
+                                        )}
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Danh Mục</label>
+                                        <select
+                                            className="form-control"
+                                            value={selectedCategory}
+                                            onChange={(e) => setSelectedCategory(e.target.value)}
+                                        >
+                                            {categories.map(category => (
+                                                <option key={category} value={category}>{category}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <button type="button" className="btn btn-primary" onClick={editingDrink ? handleSave : handleAddDrink}>
+                                        {editingDrink ? "Sửa" : "Thêm"}
+                                    </button>
+                                    <button type="button" className="btn btn-secondary ms-2" onClick={() => setShowForm(false)}>
+                                        Hủy
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     )}
-
-                    <table className="table">
+                    <table className="table table-striped">
                         <thead>
                             <tr>
-                                <th>Mã</th>
-                                <th>Tên</th>
+                                <th>STT</th>
+                                <th>Tên Món</th>
                                 <th>Giá</th>
-                                <th>Mã Giảm Giá</th>
-                                <th>Ảnh</th>
+                                <th>Danh Mục</th>
+                                <th>Hình Ảnh</th>
                                 <th>Sửa</th>
                                 <th>Xóa</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {drinks.map((drink) => (
+                            {drinks.map((drink, index) => (
                                 <tr key={drink.id}>
-                                    <td>{drink.productId}</td>
-                                    <td><strong>{drink.name}</strong></td>
+                                    <td>{index + 1}</td>
+                                    <td>{drink.name}</td>
                                     <td>{formatPrice(drink.price)}</td>
-                                    <td>{drink.discountCode || "Không có mã giảm giá"}</td>
-                                    <td>{drink.image && <img src={drink.image} alt={drink.name} className="img-thumbnail" style={{ width: 40, height: 40 }} />}</td>
-                                    <td><button className="btn btn-warning btn-sm mr-2 " onClick={() => handleEdit(drink)}><i className="fa fa-edit"></i> Sửa Món</button></td>
-                                    <td><button className="btn btn-danger btn-sm" onClick={() => handleDelete(drink)}><i className="fa fa-close"></i> Xóa Món</button></td>
+                                    <td>{drink.category}</td>
+                                    <td>
+                                        {drink.image && <img src={drink.image} alt={drink.name} className="img-thumbnail" style={{ width: '70px' }} />}
+                                    </td>
+                                    <td>
+                                        <button className="btn btn-warning me-2" onClick={() => handleEdit(drink)}>
+                                            <i className="fas fa-edit"></i> Sửa
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button className="btn btn-danger" onClick={() => handleDelete(drink)}>
+                                            <i className="fas fa-trash"></i> Xóa
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             )}
-            <ConfinModal 
-                show={showConfirm} 
-                onConfirm={confirmDelete} 
-                onCancel={() => setShowConfirm(false)} 
-                message="Bạn có chắc muốn xóa món này không?" 
-            />
+            {showConfirm && (
+                <ConfinModal
+                    title="Xác Nhận Xóa"
+                    message={`Bạn có chắc chắn muốn xóa món ${drinkToDelete?.name}?`}
+                    onConfirm={confirmDelete}
+                    onCancel={() => setShowConfirm(false)}
+                />
+            )}
         </div>
     );
 }
