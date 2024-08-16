@@ -2,10 +2,12 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer class="sticky-footer bg-white">
+    <footer class="sticky-footer bg-white md-3">
       <div class="container my-auto">
-        <div class="copyright text-center my-auto">
-          <span>COFFEE 18 &copy; Coffee Sạch Cho Thực Khách Ngon Miệng</span>
+        <div class="row justify-content-center">
+          <div class="col text-center">
+            <span>COFFEE 18 &copy; Coffee Sạch Cho Thực Khách Dùng Ngon Miệng !!!</span>
+          </div>
         </div>
       </div>
     </footer>
